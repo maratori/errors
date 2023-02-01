@@ -278,3 +278,5 @@ issues:
         - wrapcheck
 
     # specific to errors
+    - path: "errors.go"
+      linters: [ errname ]
