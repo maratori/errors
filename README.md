@@ -36,6 +36,10 @@ go get github.com/maratori/errors
 
 TBD
 
+## Contribution
+
+You are welcome to create an issue or pull request with improvements and fixes. See [guide](/.github/CONTRIBUTING.md).
+
 ## License
 
 [MIT License][license-url]
