@@ -1,4 +1,4 @@
-# errors <br> [![go.mod version][go-img]][go-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
+# errors <br> [![go.mod version][go-img]][go-url] [![License][license-img]][license-url] [![CI][ci-img]][ci-url] [![Go Reference][godoc-img]][godoc-url]
 
 Go library to construct errors with fields for structured logging.
 
@@ -43,6 +43,8 @@ TBD
 
 [go-img]: https://img.shields.io/github/go-mod/go-version/maratori/errors
 [go-url]: /go.mod
+[ci-img]: https://github.com/maratori/errors/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/maratori/errors/actions/workflows/ci.yml
 [license-img]: https://img.shields.io/github/license/maratori/errors.svg
 [license-url]: /LICENSE
 [godoc-img]: https://pkg.go.dev/badge/github.com/maratori/errors.svg
