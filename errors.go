@@ -144,10 +144,13 @@ func Combine(errs ...error) error {
 }
 
 func AppendInto(into *error, err error) {
+	if into == nil {
+		panic("misuse of errors.AppendInto: into pointer must not be nil")
+	}
 	if err == nil {
 		return
 	}
-	*into = multierr.Append(*into, err)
+	*into = Combine(*into, err)
 }
 
 func joinFields(outer Fields, inner Fields) Fields {

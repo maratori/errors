@@ -322,6 +322,28 @@ func TestMultipleErrors(t *testing.T) {
 		require.Equal(t, errors.Fields{key2: value2}, fields)
 	})
 
+	t.Run("append into two errors with fields", func(t *testing.T) {
+		t.Parallel()
+		err1 := errors.New(newErr1).WithField(key1, value1).E()
+		err2 := errors.New(newErr2).WithField(key2, value2).E()
+		errors.AppendInto(&err1, err2)
+		require.EqualError(t, err1, newErr1+"; "+newErr2)
+
+		fields := errors.FieldsFromError(err1)
+		require.Equal(t, errors.Fields{key1: value1}, fields) // only from the first error
+
+		errs := errors.Errors(err1)
+		require.Len(t, errs, 2)
+		require.EqualError(t, errs[0], newErr1)
+		require.EqualError(t, errs[1], newErr2)
+
+		fields = errors.FieldsFromError(errs[0])
+		require.Equal(t, errors.Fields{key1: value1}, fields)
+
+		fields = errors.FieldsFromError(errs[1])
+		require.Equal(t, errors.Fields{key2: value2}, fields)
+	})
+
 	t.Run("combine wrapped errors", func(t *testing.T) {
 		t.Parallel()
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
