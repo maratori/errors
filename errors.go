@@ -20,6 +20,10 @@ func As(err error, target any) bool {
 
 type Fields = map[string]any
 
+type Field interface {
+	Field() (key string, value any)
+}
+
 func Errors(err error) []error {
 	errs := wrapper{err: err}.Errors()
 	res := make([]error, 0, len(errs))
@@ -90,6 +94,22 @@ func (e *ErrorBuilder) WithFields(fields Fields) *ErrorBuilder {
 	e.err = withFields{
 		err:    e.err,
 		fields: clone(fields),
+	}
+	return e
+}
+
+func (e *ErrorBuilder) WithCustomFields(fields ...Field) *ErrorBuilder {
+	if e == nil {
+		return nil
+	}
+	ff := make(Fields, len(fields))
+	for _, f := range fields {
+		key, value := f.Field()
+		ff[key] = value
+	}
+	e.err = withFields{
+		err:    e.err,
+		fields: ff,
 	}
 	return e
 }
