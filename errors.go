@@ -9,20 +9,25 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+// Unwrap calls Unwrap function from standard library.
 func Unwrap(err error) error {
 	return errors.Unwrap(err)
 }
 
+// Is calls Is function from standard library.
 func Is(err, target error) bool {
 	return errors.Is(err, target)
 }
 
+// As calls As function from standard library.
 func As(err error, target any) bool {
 	return errors.As(err, target)
 }
 
 type Fields = map[string]any
 
+// Errors extracts errors combined into one error.
+// TODO: about tree
 func Errors(err error) []error {
 	errs := wrapper{err: err}.Errors()
 	res := make([]error, 0, len(errs))
@@ -32,6 +37,9 @@ func Errors(err error) []error {
 	return res
 }
 
+// FieldsFromError returns joined key-value pairs from the chain of wrapped errors.
+// For repeated keys value from the most inner error has priority.
+// TODO: about tree
 func FieldsFromError(err error) Fields {
 	errs := wrapper{err: err}.Errors()
 	if len(errs) == 0 || errs[0].fields == nil {
@@ -42,14 +50,17 @@ func FieldsFromError(err error) Fields {
 	return maps.Clone(errs[0].fields)
 }
 
+// ErrorBuilder provides fluent api to configure error.
 type ErrorBuilder struct {
 	err treeNode
 }
 
+// New creates an error with message.
 func New(msg string) *ErrorBuilder {
 	return Err(errors.New(msg))
 }
 
+// Err wraps an error.
 func Err(err error) *ErrorBuilder {
 	// Type switch instead of errors.As() because we don't want to extract wrapped error to not miss wrapper.
 	switch e := err.(type) { //nolint:errorlint // see comment above
@@ -68,6 +79,7 @@ func Err(err error) *ErrorBuilder {
 	}
 }
 
+// E builds and returns an error.
 func (e *ErrorBuilder) E() error {
 	if e == nil {
 		return nil
@@ -75,6 +87,7 @@ func (e *ErrorBuilder) E() error {
 	return e.err
 }
 
+// Wrap adds string prefix to an error.
 func (e *ErrorBuilder) Wrap(prefix string) *ErrorBuilder {
 	if e == nil {
 		return nil
@@ -86,6 +99,7 @@ func (e *ErrorBuilder) Wrap(prefix string) *ErrorBuilder {
 	return e
 }
 
+// WithFields adds key-value pairs to an error.
 func (e *ErrorBuilder) WithFields(fields Fields) *ErrorBuilder {
 	if e == nil {
 		return nil
@@ -97,24 +111,40 @@ func (e *ErrorBuilder) WithFields(fields Fields) *ErrorBuilder {
 	return e
 }
 
+// WithField adds key-value pair to an error.
 func (e *ErrorBuilder) WithField(key string, value any) *ErrorBuilder {
 	return e.WithFields(Fields{
 		key: value,
 	})
 }
 
+// Wrap adds string prefix to an error.
 func Wrap(prefix string, err error) *ErrorBuilder {
 	return Err(err).Wrap(prefix)
 }
 
+// WithFields adds key-value pairs to an error.
 func WithFields(err error, fields Fields) *ErrorBuilder {
 	return Err(err).WithFields(fields)
 }
 
+// WithField adds key-value pair to an error.
 func WithField(err error, key string, value any) *ErrorBuilder {
 	return Err(err).WithField(key, value)
 }
 
+// Combine combines the passed errors into a single error.
+//
+// Combine skips over nil arguments so this function may be used to combine
+// together errors from operations that fail independently of each other.
+//
+//	errors.Combine(
+//		reader.Close(),
+//		writer.Close(),
+//		pipe.Close(),
+//	)
+//
+// TODO: about tree
 func Combine(errs ...error) error {
 	converted := make([]treeNode, 0, len(errs))
 	for _, err := range errs {
@@ -143,6 +173,15 @@ func Combine(errs ...error) error {
 	}
 }
 
+// AppendInto appends an error into the destination of an error pointer.
+//
+//	var err error
+//	errors.AppendInto(&err, r.Close())
+//	errors.AppendInto(&err, w.Close())
+//
+// The above is equivalent to,
+//
+//	err := errors.Combine(r.Close(), w.Close())
 func AppendInto(into *error, err error) {
 	if into == nil {
 		panic("misuse of errors.AppendInto: into pointer must not be nil")
