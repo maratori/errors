@@ -6,7 +6,7 @@ Features:
 - Wrap an error with string prefix
 - Add custom fields to an error
 - Extract all fields from chain of wrapped errors
-- Combine several errors into one error (build errors tree)
+- Join several errors into one error (build errors tree)
 - Extract paths to each leaf from the errors tree
 - Logger agnostic
 
