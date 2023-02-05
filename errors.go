@@ -4,9 +4,6 @@ package errors
 import (
 	"errors"
 	"fmt"
-
-	"go.uber.org/multierr"
-	"golang.org/x/exp/maps"
 )
 
 func Unwrap(err error) error {
@@ -39,7 +36,7 @@ func FieldsFromError(err error) Fields {
 		// Need to return empty map instead of nil.
 		return Fields{}
 	}
-	return maps.Clone(errs[0].fields)
+	return clone(errs[0].fields)
 }
 
 type ErrorBuilder struct {
@@ -92,7 +89,7 @@ func (e *ErrorBuilder) WithFields(fields Fields) *ErrorBuilder {
 	}
 	e.err = withFields{
 		err:    e.err,
-		fields: maps.Clone(fields),
+		fields: clone(fields),
 	}
 	return e
 }
@@ -115,7 +112,7 @@ func WithField(err error, key string, value any) *ErrorBuilder {
 	return Err(err).WithField(key, value)
 }
 
-func Combine(errs ...error) error {
+func Join(errs ...error) error {
 	converted := make([]treeNode, 0, len(errs))
 	for _, err := range errs {
 		// Type switch instead of errors.As() because we don't want to extract wrapped error to not miss wrapper.
@@ -150,7 +147,7 @@ func AppendInto(into *error, err error) {
 	if err == nil {
 		return
 	}
-	*into = Combine(*into, err)
+	*into = Join(*into, err)
 }
 
 func joinFields(outer Fields, inner Fields) Fields {
@@ -200,7 +197,8 @@ var (
 	_ treeNode = many{}
 )
 
-func (e wrapper) isMyError()    {}
+func (e wrapper) isMyError() {}
+
 func (e withPrefix) isMyError() {}
 func (e withFields) isMyError() {}
 func (e many) isMyError()       {}
@@ -296,14 +294,18 @@ func (e many) Errors() []errorWithFields {
 	return res
 }
 
-func (e many) Error() string {
-	return multierr.Combine(e.Unwrap()...).Error()
-}
-
 func (e many) Unwrap() []error {
 	res := make([]error, 0, len(e.errors))
 	for _, err := range e.errors {
 		res = append(res, err)
+	}
+	return res
+}
+
+func clone(fields Fields) Fields {
+	res := make(Fields, len(fields))
+	for k, v := range fields {
+		res[k] = v
 	}
 	return res
 }

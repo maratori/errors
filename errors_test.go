@@ -6,7 +6,6 @@ import (
 
 	"github.com/maratori/errors"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/multierr"
 )
 
 func TestOneError(t *testing.T) {
@@ -222,15 +221,6 @@ func TestWrap(t *testing.T) {
 		require.NotNil(t, fields)
 		require.Empty(t, fields)
 	})
-
-	t.Run("fields are not accessible if multierr is used", func(t *testing.T) {
-		t.Parallel()
-		errWithField := errors.New(newErr).WithField(key, value).E()
-		wrapped := multierr.Combine(errWithField, fmt.Errorf(newErr))
-		fields := errors.FieldsFromError(wrapped)
-		require.NotNil(t, fields)
-		require.Empty(t, fields)
-	})
 }
 
 func TestMultipleErrors(t *testing.T) {
@@ -251,9 +241,9 @@ func TestMultipleErrors(t *testing.T) {
 		value4  = "value4"
 	)
 
-	t.Run("combine no errors", func(t *testing.T) {
+	t.Run("join no errors", func(t *testing.T) {
 		t.Parallel()
-		err := errors.Combine()
+		err := errors.Join()
 		require.NoError(t, err)
 
 		fields := errors.FieldsFromError(err)
@@ -264,10 +254,10 @@ func TestMultipleErrors(t *testing.T) {
 		require.Empty(t, errs)
 	})
 
-	t.Run("combine returns the single non-nil error", func(t *testing.T) {
+	t.Run("join returns the single non-nil error", func(t *testing.T) {
 		t.Parallel()
 		original := fmt.Errorf(newErr1)
-		err := errors.Combine(nil, original, nil)
+		err := errors.Join(nil, original, nil)
 		require.EqualError(t, err, newErr1)
 		require.ErrorIs(t, err, original)
 		require.NotSame(t, original, err) // because it's wrapped
@@ -281,12 +271,12 @@ func TestMultipleErrors(t *testing.T) {
 		require.EqualError(t, errs[0], newErr1)
 	})
 
-	t.Run("combine two errors", func(t *testing.T) {
+	t.Run("join two errors", func(t *testing.T) {
 		t.Parallel()
 		original1 := fmt.Errorf(newErr1)
 		original2 := fmt.Errorf(newErr2)
-		err := errors.Combine(nil, original1, nil, original2, nil)
-		require.EqualError(t, err, newErr1+"; "+newErr2)
+		err := errors.Join(nil, original1, nil, original2, nil)
+		require.EqualError(t, err, newErr1+"\n"+newErr2)
 		require.ErrorIs(t, err, original1)
 		require.ErrorIs(t, err, original2)
 
@@ -300,12 +290,12 @@ func TestMultipleErrors(t *testing.T) {
 		require.EqualError(t, errs[1], newErr2)
 	})
 
-	t.Run("combine two errors with fields", func(t *testing.T) {
+	t.Run("join two errors with fields", func(t *testing.T) {
 		t.Parallel()
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key2, value2).E()
-		err := errors.Combine(nil, original1, nil, original2, nil)
-		require.EqualError(t, err, newErr1+"; "+newErr2)
+		err := errors.Join(nil, original1, nil, original2, nil)
+		require.EqualError(t, err, newErr1+"\n"+newErr2)
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key1: value1}, fields) // only from the first error
@@ -327,7 +317,7 @@ func TestMultipleErrors(t *testing.T) {
 		err1 := errors.New(newErr1).WithField(key1, value1).E()
 		err2 := errors.New(newErr2).WithField(key2, value2).E()
 		errors.AppendInto(&err1, err2)
-		require.EqualError(t, err1, newErr1+"; "+newErr2)
+		require.EqualError(t, err1, newErr1+"\n"+newErr2)
 
 		fields := errors.FieldsFromError(err1)
 		require.Equal(t, errors.Fields{key1: value1}, fields) // only from the first error
@@ -344,14 +334,14 @@ func TestMultipleErrors(t *testing.T) {
 		require.Equal(t, errors.Fields{key2: value2}, fields)
 	})
 
-	t.Run("combine wrapped errors", func(t *testing.T) {
+	t.Run("join wrapped errors", func(t *testing.T) {
 		t.Parallel()
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key2, value2).E()
 		wrapped1 := errors.Wrap(prefix1, original1).WithField(key3, value3).E()
 		wrapped2 := errors.Wrap(prefix2, original2).WithField(key4, value4).E()
-		err := errors.Combine(nil, wrapped1, nil, wrapped2, nil)
-		require.EqualError(t, err, prefix1+": "+newErr1+"; "+prefix2+": "+newErr2)
+		err := errors.Join(nil, wrapped1, nil, wrapped2, nil)
+		require.EqualError(t, err, prefix1+": "+newErr1+"\n"+prefix2+": "+newErr2)
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key1: value1, key3: value3}, fields) // only from the first chain
@@ -368,13 +358,13 @@ func TestMultipleErrors(t *testing.T) {
 		require.Equal(t, errors.Fields{key2: value2, key4: value4}, fields)
 	})
 
-	t.Run("wrap combined errors", func(t *testing.T) {
+	t.Run("wrap joined errors", func(t *testing.T) {
 		t.Parallel()
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key2, value2).E()
-		combined := errors.Combine(nil, original1, nil, original2, nil)
-		err := errors.Wrap(prefix1, combined).WithField(key3, value3).E()
-		require.EqualError(t, err, prefix1+": "+newErr1+"; "+newErr2)
+		joined := errors.Join(nil, original1, nil, original2, nil)
+		err := errors.Wrap(prefix1, joined).WithField(key3, value3).E()
+		require.EqualError(t, err, prefix1+": "+newErr1+"\n"+newErr2)
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key1: value1, key3: value3}, fields) // only from the first chain
@@ -391,15 +381,15 @@ func TestMultipleErrors(t *testing.T) {
 		require.Equal(t, errors.Fields{key2: value2, key3: value3}, fields)
 	})
 
-	t.Run("combine several times", func(t *testing.T) {
+	t.Run("join several times", func(t *testing.T) {
 		t.Parallel()
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key2, value2).E()
 		original3 := errors.New(newErr3).WithField(key3, value3).E()
-		combined1 := errors.Combine(nil, original1, nil, original2, nil)
-		combined2 := errors.Combine(original3, combined1)
-		err := errors.Wrap(prefix1, combined2).WithField(key4, value4).E()
-		require.EqualError(t, err, prefix1+": "+newErr3+"; "+newErr1+"; "+newErr2)
+		joined1 := errors.Join(nil, original1, nil, original2, nil)
+		joined2 := errors.Join(original3, joined1)
+		err := errors.Wrap(prefix1, joined2).WithField(key4, value4).E()
+		require.EqualError(t, err, prefix1+": "+newErr3+"\n"+newErr1+"\n"+newErr2)
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key3: value3, key4: value4}, fields) // only from the first chain
@@ -425,9 +415,9 @@ func TestMultipleErrors(t *testing.T) {
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key1, value2).E()
 		original3 := errors.New(newErr3).WithField(key1, value3).E()
-		combined1 := errors.Combine(nil, original1, nil, original2, nil)
-		combined2 := errors.Combine(original3, combined1)
-		err := errors.Wrap(prefix1, combined2).WithField(key2, value4).E()
+		joined1 := errors.Join(nil, original1, nil, original2, nil)
+		joined2 := errors.Join(original3, joined1)
+		err := errors.Wrap(prefix1, joined2).WithField(key2, value4).E()
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key1: value3, key2: value4}, fields) // only from the first chain
@@ -450,9 +440,9 @@ func TestMultipleErrors(t *testing.T) {
 		original1 := errors.New(newErr1).WithField(key1, value1).E()
 		original2 := errors.New(newErr2).WithField(key2, value2).E()
 		original3 := errors.New(newErr3).WithField(key1, value3).E()
-		combined1 := errors.Combine(nil, original1, nil, original2, nil)
-		combined2 := errors.Combine(original3, combined1)
-		err := errors.Wrap(prefix1, combined2).WithField(key1, value4).E()
+		joined1 := errors.Join(nil, original1, nil, original2, nil)
+		joined2 := errors.Join(original3, joined1)
+		err := errors.Wrap(prefix1, joined2).WithField(key1, value4).E()
 
 		fields := errors.FieldsFromError(err)
 		require.Equal(t, errors.Fields{key1: value3}, fields) // only from the first chain
