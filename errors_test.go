@@ -1,6 +1,7 @@
 package errors_test
 
 import (
+	stderrors "errors"
 	"fmt"
 	"testing"
 
@@ -48,7 +49,7 @@ func TestOneError(t *testing.T) {
 
 	t.Run("non-nil wrapped error without fields", func(t *testing.T) {
 		t.Parallel()
-		err := errors.Wrap(prefix, fmt.Errorf(newErr)).E()
+		err := errors.Wrap(prefix, stderrors.New(newErr)).E()
 		require.EqualError(t, err, prefix+": "+newErr)
 
 		fields := errors.FieldsFromError(err)
@@ -62,7 +63,7 @@ func TestOneError(t *testing.T) {
 
 	t.Run("non-nil wrapped error with one field", func(t *testing.T) {
 		t.Parallel()
-		err := errors.Wrap(prefix, fmt.Errorf(newErr)).WithField(key, value).E()
+		err := errors.Wrap(prefix, stderrors.New(newErr)).WithField(key, value).E()
 		require.EqualError(t, err, prefix+": "+newErr)
 
 		fields := errors.FieldsFromError(err)
@@ -75,7 +76,7 @@ func TestOneError(t *testing.T) {
 
 	t.Run("non-nil wrapped error with two fields", func(t *testing.T) {
 		t.Parallel()
-		err := errors.Wrap(prefix, fmt.Errorf(newErr)).WithField(key, value).WithField(key2, value2).E()
+		err := errors.Wrap(prefix, stderrors.New(newErr)).WithField(key, value).WithField(key2, value2).E()
 		require.EqualError(t, err, prefix+": "+newErr)
 
 		fields := errors.FieldsFromError(err)
@@ -88,7 +89,7 @@ func TestOneError(t *testing.T) {
 
 	t.Run("first field has priority", func(t *testing.T) {
 		t.Parallel()
-		err := errors.Wrap(prefix, fmt.Errorf(newErr)).WithField(key, value).WithField(key, value2).E()
+		err := errors.Wrap(prefix, stderrors.New(newErr)).WithField(key, value).WithField(key, value2).E()
 		require.EqualError(t, err, prefix+": "+newErr)
 
 		fields := errors.FieldsFromError(err)
@@ -123,7 +124,7 @@ func TestOneError(t *testing.T) {
 
 	t.Run("errors.Is(): non-nil wrapped error with fields", func(t *testing.T) {
 		t.Parallel()
-		err := fmt.Errorf(newErr)
+		err := stderrors.New(newErr)
 		wrapped := errors.Wrap(prefix, err).WithField(key, value).E()
 
 		require.ErrorIs(t, wrapped, err)
@@ -159,7 +160,7 @@ func TestWrap(t *testing.T) {
 
 	t.Run("wrap error without fields and add field", func(t *testing.T) {
 		t.Parallel()
-		original := errors.Wrap(prefix, fmt.Errorf(newErr)).E()
+		original := errors.Wrap(prefix, stderrors.New(newErr)).E()
 		err := errors.Wrap(prefix2, original).WithField(key, value).E()
 		require.EqualError(t, err, prefix2+": "+prefix+": "+newErr)
 
@@ -256,7 +257,7 @@ func TestMultipleErrors(t *testing.T) {
 
 	t.Run("join returns the single non-nil error", func(t *testing.T) {
 		t.Parallel()
-		original := fmt.Errorf(newErr1)
+		original := stderrors.New(newErr1)
 		err := errors.Join(nil, original, nil)
 		require.EqualError(t, err, newErr1)
 		require.ErrorIs(t, err, original)
@@ -273,8 +274,8 @@ func TestMultipleErrors(t *testing.T) {
 
 	t.Run("join two errors", func(t *testing.T) {
 		t.Parallel()
-		original1 := fmt.Errorf(newErr1)
-		original2 := fmt.Errorf(newErr2)
+		original1 := stderrors.New(newErr1)
+		original2 := stderrors.New(newErr2)
 		err := errors.Join(nil, original1, nil, original2, nil)
 		require.EqualError(t, err, newErr1+"\n"+newErr2)
 		require.ErrorIs(t, err, original1)
