@@ -1,6 +1,6 @@
 # errors <br> [![go.mod version][go-img]][go-url] [![CI][ci-img]][ci-url] [![Codecov][codecov-img]][codecov-url] [![Maintainability][codeclimate-img]][codeclimate-url] [![Go Report Card][goreportcard-img]][goreportcard-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
 
-Go library to construct errors with fields for structured logging.
+Go (1.18+) library to construct errors with fields for structured logging.
 
 Features:
 - Wrap an error with string prefix
