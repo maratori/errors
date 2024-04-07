@@ -31,6 +31,8 @@ jobs:
         uses: mxschmitt/action-tmate@v3
       - run: make test-cover
       - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test19:
     name: "test go 1.18"
