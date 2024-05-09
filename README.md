@@ -1,4 +1,4 @@
-# errors <br> [![go.mod version][go-img]][go-url] [![CI][ci-img]][ci-url] [![Codecov][codecov-img]][codecov-url] [![Maintainability][codeclimate-img]][codeclimate-url] [![Go Report Card][goreportcard-img]][goreportcard-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
+# errors <br> [![go minimal version][go-img]][go-url] [![go tested version][go-latest-img]][go-latest-url] [![CI][ci-img]][ci-url] [![Codecov][codecov-img]][codecov-url] [![Maintainability][codeclimate-img]][codeclimate-url] [![Go Report Card][goreportcard-img]][goreportcard-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
 
 Go (1.18+) library to construct errors with fields for structured logging.
 
@@ -47,6 +47,8 @@ You are welcome to create an issue or pull request with improvements and fixes. 
 
 [go-img]: https://img.shields.io/github/go-mod/go-version/maratori/errors
 [go-url]: /go.mod
+[go-latest-img]: https://img.shields.io/github/go-mod/go-version/maratori/errors?filename=.github%2Flatest-deps%2Fgo.mod&label=tested
+[go-latest-url]: /.github/latest-deps/go.mod
 [ci-img]: https://github.com/maratori/errors/actions/workflows/ci.yml/badge.svg
 [ci-url]: https://github.com/maratori/errors/actions/workflows/ci.yml
 [codecov-img]: https://codecov.io/gh/maratori/errors/branch/main/graph/badge.svg?token=LPthtc4wLI
