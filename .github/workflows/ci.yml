@@ -34,7 +34,16 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  test19:
+  test-latest-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.3" # update together with dev.dockerfile
+      - run: make test-latest-deps
+
+  test18:
     name: "test go 1.18"
     runs-on: ubuntu-latest
     steps:
