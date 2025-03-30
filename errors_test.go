@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/maratori/errors"
 	"github.com/stretchr/testify/require"
+
+	"github.com/maratori/errors"
 )
 
 func TestOneError(t *testing.T) {
