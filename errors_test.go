@@ -262,7 +262,8 @@ func TestMultipleErrors(t *testing.T) {
 		err := errors.Join(nil, original, nil)
 		require.EqualError(t, err, newErr1)
 		require.ErrorIs(t, err, original)
-		require.NotSame(t, original, err) // because it's wrapped
+		require.NotEqual(t, err, original) // because it's wrapped
+		require.True(t, err != original)   //nolint:errorlint,testifylint // use != to validate they are not the same
 
 		fields := errors.FieldsFromError(err)
 		require.NotNil(t, fields)
