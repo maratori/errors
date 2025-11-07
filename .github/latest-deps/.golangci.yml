@@ -4,3 +4,6 @@ linters:
   exclusions:
     rules:
       # patch for latest deps
+      - text: 'mapsloop: Replace m\[k\]=v loop with maps.Copy' # remove after go 1.21+
+        linters:
+          - modernize
