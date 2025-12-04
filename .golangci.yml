@@ -464,3 +464,5 @@ linters:
       # specific to errors
       - path: 'errors.go'
         linters: [ errname ]
+      - source: 'package errors'
+        text: 'var-naming: avoid package names that conflict with Go standard library package names'
