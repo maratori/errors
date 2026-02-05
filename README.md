@@ -1,4 +1,4 @@
-# errors <br> [![go minimal version][go-img]][go-url] [![go tested version][go-latest-img]][go-latest-url] [![CI][ci-img]][ci-url] [![Codecov][codecov-img]][codecov-url] [![Maintainability][codeclimate-img]][codeclimate-url] [![Go Report Card][goreportcard-img]][goreportcard-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
+# errors <br> [![go minimal version][go-img]][go-url] [![go tested version][go-latest-img]][go-latest-url] [![CI][ci-img]][ci-url] [![Codecov][codecov-img]][codecov-url] [![Go Report Card][goreportcard-img]][goreportcard-url] [![License][license-img]][license-url] [![Go Reference][godoc-img]][godoc-url]
 
 Go (1.18+) library to construct errors with fields for structured logging.
 
@@ -53,8 +53,6 @@ You are welcome to create an issue or pull request with improvements and fixes. 
 [ci-url]: https://github.com/maratori/errors/actions/workflows/ci.yml
 [codecov-img]: https://codecov.io/gh/maratori/errors/branch/main/graph/badge.svg?token=LPthtc4wLI
 [codecov-url]: https://codecov.io/gh/maratori/errors
-[codeclimate-img]: https://api.codeclimate.com/v1/badges/d81e78169c09c31ebe42/maintainability
-[codeclimate-url]: https://codeclimate.com/github/maratori/errors/maintainability
 [goreportcard-img]: https://goreportcard.com/badge/github.com/maratori/errors
 [goreportcard-url]: https://goreportcard.com/report/github.com/maratori/errors
 [license-img]: https://img.shields.io/github/license/maratori/errors.svg
