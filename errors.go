@@ -189,7 +189,7 @@ type treeNode interface {
 	//   Unwrap() []error
 }
 
-//nolint:exhaustruct // false positive
+//nolint:exhaustruct_v5 // false positive
 var (
 	_ treeNode = wrapper{}
 	_ treeNode = withPrefix{}
